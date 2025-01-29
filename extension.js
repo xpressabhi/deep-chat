@@ -42,7 +42,6 @@ function activate(context) {
 							stream: true,
 						});
 						for await (const response of streamResponse) {
-							console.log(response);
 							responseText += response.message.content;
 							panel.webview.postMessage({
 								command: 'chatResponse',
@@ -82,11 +81,17 @@ function getWebviewContent() {
 	<textarea id="prompt" rows="3" placeholder="Ask something...."></textarea> <br />
 	<button id="askBtn">Ask</button>
 	<div id="response"></div>
+	<script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
 	<script>
 		const vscode = acquireVsCodeApi();
 		const prompt = document.getElementById('prompt');
 		const response = document.getElementById('response');
 		const askBtn = document.getElementById('askBtn');
+		const md = window.markdownit({
+            html: true,
+            linkify: true,
+            typographer: true,
+        });
 		askBtn.addEventListener('click', () => {
 			const question = prompt.value;
 			response.innerHTML = 'Thinking...';
@@ -95,7 +100,8 @@ function getWebviewContent() {
 		window.addEventListener('message', event => {
 			const {command , answer} = event.data;
 			if(command === 'chatResponse'){
-				response.innerHTML = answer;
+				console.log(answer);
+				response.innerHTML = md.render(answer);
 			}
 		});
 
